@@ -1,4 +1,3 @@
-
 const CategoryModel = require('../models/category.model')
 const Products = require('../models/product_model')
 
@@ -22,22 +21,6 @@ async function createCategory(req,res){
 // Delete a category
 async function deleteCategory(req,res){
     try {
-        const {_id} = req.user
-        const categoryId = req.params.id
-        
-        if (!categoryId) {
-            return res.status(400).json({success: false, message: 'Please provide category ID'})
-        }
-        
-        const category = await CategoryModel.findById(categoryId)
-        if (!category) {
-            return res.status(404).json({success: false, message: 'Category not found'})
-        }
-
-        if (category.user_id !== _id) {
-            return res.status(401).json({success: false, message: 'You are not authorized to perform this action'})
-        }
-
         const products = Products.find({category: categoryId})
         if (products.length == 0) {
             return res.status(404).json({success: false, message: 'No product found in this category'})
@@ -81,9 +64,7 @@ async function getProductsByCategory(req,res){
 //Update a category
 async function updateCategory(req,res){
     try {
-        const {_id} = req.user
-        const categoryId = req.params.id
-        const {name, description} = req.user
+        const {name, description} = req.body
 
         if (!name && !description) {
             return res.status(400).json({success: false, message: 'Please provide at least one field'})
@@ -99,26 +80,8 @@ async function updateCategory(req,res){
             updateDetails.description = description
 
         }
-        
-        if (!categoryId) {
-            return res.status(400).json({success: false, message: 'Please provide category ID'})
-        }
-        
-        const category = await CategoryModel.findById(categoryId)
-        if (!category) {
-            return res.status(404).json({success: false, message: 'Category not found'})
-        }
 
-        if (category.user_id !== _id) {
-            return res.status(401).json({success: false, message: 'You are not authorized to perform this action'})
-        }
-
-        const products = Products.find()
-        if (products.length == 0) {
-            return res.status(404).json({success: false, message: 'No product found in this category'})
-        }
-
-        const updatedCategory = CategoryModel.findByIdAndUpdate(categoryId , updateDetails , {new: true})
+        const updatedCategory = CategoryModel.findByIdAndUpdate(categoryId , updateDetails)
         
         res.status(200).json({success: true, message: 'Category updated successfully'})
       
